@@ -1,13 +1,11 @@
 class Matrix:
 
-    def __init__(self, rows, cols, data=None):
-        self.rows = rows
-        self.cols = cols
+    def __init__(self, data=None):    
+        if data is not None: self.data = data
 
-        if data is not None:
-            self.data = data
-        else:
-            self.data = [[None for n in range(rows)] for n in range(cols)]
+    @staticmethod
+    def multiply(matrixA, matrixB):
+
 
     
 
