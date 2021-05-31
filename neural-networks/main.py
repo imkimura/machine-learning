@@ -4,7 +4,24 @@ from neuralnetwork import NeuralNetwork
 if __name__ == '__main__':
 
 
-    nn = NeuralNetwork(2, 2, 1)
+    nn = NeuralNetwork(2, 3, 1)
 
-    nn.train([1, 2, 3], [0, 0, 0])
+    dataset = [
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ]
+
+    answers = [0, 1, 1, 0]
+
+    while (nn.train(dataset, answers) > 0.1):        
+        print(nn.train(dataset, answers))
+
+    nn.test([
+        [0, 0],
+        [0, 1],
+        [1, 0],
+        [1, 1]
+    ])
     
