@@ -5,7 +5,7 @@ class Matrix:
 
     @staticmethod
     def multiply(matrixA, matrixB):
-
+        return matrixA * matrixB
 
     
 

@@ -1,27 +1,52 @@
+import os
+import csv
 from neuralnetwork import NeuralNetwork
 
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__':
+    train = True
+    dataset = []
 
+    if 'iris_train.txt' in os.listdir(ROOT_DIR):
+        with open(f'{ROOT_DIR}/iris_train.txt') as f:
+            iris = csv.reader(f, delimiter=',')
 
-    nn = NeuralNetwork(2, 3, 1)
+            answers = []
 
-    dataset = [
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, 1]
-    ]
+            for data in iris:
+                inputs = []
 
-    answers = [0, 1, 1, 0]
+                inputs.append(float(data[0]))
+                inputs.append(float(data[1]))
+                inputs.append(float(data[2]))
+                inputs.append(float(data[3]))
 
-    while (nn.train(dataset, answers) > 0.1):        
+                answers.append(float(data[4]))
+
+                dataset.append(inputs)
+
+    training = []
+
+    if 'iris_test.txt' in os.listdir(ROOT_DIR):
+        with open(f'{ROOT_DIR}/iris_test.txt') as f:
+            iris = csv.reader(f, delimiter=',')
+
+            for row in iris:
+                inputs = []
+                
+                inputs.append(float(row[0]))
+                inputs.append(float(row[1]))
+                inputs.append(float(row[2]))
+                inputs.append(float(row[3]))
+
+                training.append(inputs)
+
+    nn = NeuralNetwork(4, 8, 1)
+
+    while (train):        
+        if (nn.train(dataset, answers) <= 0.014):
+            train = False
         print(nn.train(dataset, answers))
-
-    nn.test([
-        [0, 0],
-        [0, 1],
-        [1, 0],
-        [1, 1]
-    ])
-    
+        
+    nn.predict(training)

@@ -12,23 +12,20 @@ class NeuralNetwork:
         # Bias
         self.bias_ih = [rd.randint(-1, 1) for i in range(h_nodes)]
         self.bias_ho = [rd.randint(-1, 1) for i in range(o_nodes)]
-        # self.bias_ih = [-0.46, 0.45, 0.6]
-        # self.bias_ho = [0.78]
 
         # Pesos
         self.weigths_ih = [[rd.randint(-1, 1) for i in range(i_nodes)] for i in range(h_nodes)]
         self.weigths_ho = [[rd.randint(-1, 1) for i in range(h_nodes)] for i in range(o_nodes)]
-        # self.weigths_ih = [[0.40, 0.50, 0.5], [0.94, 0.46, 0.4]]
-        # self.weigths_ho = [[0.22, 0.58, 0.5]]
 
+        # dW(t - 1)
         self.vb_bias_ih = [0 for i in range(h_nodes)]
         self.vb_bias_ho = [0 for i in range(o_nodes)]
         self.vb_weights_ih = [[0 for i in range(i_nodes)] for i in range(h_nodes)]
         self.vb_weights_ho = [[0 for i in range(h_nodes)] for i in range(o_nodes)]
 
         # Learning Rate
-        self.learning_rate = 0.2
-        self.a_variation = 0.6
+        self.learning_rate = 0.1
+        self.a_variation = 0.7
 
     def fu(self, inputs, weights, outputs, bias):
         hidden_n = []
@@ -64,30 +61,35 @@ class NeuralNetwork:
             for j in range(self.i_nodes):
                 percent = self.a_variation * self.vb_weights_ih[i][j]
                 variant = self.learning_rate * (inputs[j] * delta_h[j])
-                # if second: variant = variant * percent
+                if second: variant = variant * percent
                 new_weight = self.weigths_ih[i][j] + (variant)
+                
                 self.vb_weights_ih[i][j] = variant
                 self.weigths_ih[i][j] = new_weight
 
                 percent_ho = self.a_variation * self.vb_weights_ho[0][j]
                 variant_ho = self.learning_rate * (hidden_o[j] * delta_o[0])
-                # if second: variant_ho = variant_ho * percent_ho
+                if second: variant_ho = variant_ho * percent_ho
                 new_weight_ho = self.weigths_ho[0][j] + variant_ho
+
                 self.weigths_ho[0][j] = new_weight_ho
                 self.vb_weights_ho[0][j] = variant_ho
             
         percent_bo = self.a_variation * self.vb_bias_ho[0]
         variant_bo = self.learning_rate * (1 * delta_o[0])
-        # if second: variant_bo = variant_bo * percent_bo
+        if second: variant_bo = variant_bo * percent_bo
         new_weight_bo = self.bias_ho[0] + variant_bo
+        
         self.bias_ho[0] = new_weight_bo
         self.vb_bias_ho[0] = variant_bo
             
         for i in range(self.i_nodes):
+            
             percent_bi = self.a_variation * self.vb_bias_ih[i]
             variant_bi = self.learning_rate * (1 * delta_o[0])
-            # if second: variant_bi = variant_bi * percent_bi
+            if second: variant_bi = variant_bi * percent_bi
             new_weight_bi = self.bias_ih[i] + variant_bi
+            
             self.bias_ih[i] = new_weight_bi
             self.vb_bias_ih[i] = variant_bi
 
@@ -107,17 +109,13 @@ class NeuralNetwork:
         for i, inputs in zip(range(len(dataset)), dataset):
             # feedfoward         
             hidden_outputs = self.fu(inputs, self.weigths_ih, self.h_nodes, self.bias_ih)
-            # print(hidden_outputs)
         
             outputs = self.fu(hidden_outputs, self.weigths_ho, self.o_nodes, self.bias_ho)
-            # print(outputs)
 
             # backpropagation
             delta_o = self.delt_o(outputs, answers[i])
-            # print(delta_o)
             
             delta_h = self.delt_h(hidden_outputs, delta_o)
-            # print(delta_h)
             
             if i != 0: second = True
 
@@ -127,10 +125,21 @@ class NeuralNetwork:
 
         return self.mse(all_outputs, answers)
     
-    def test(self, dataset):
+    def predict(self, dataset):
         for i in range(len(dataset)):
             hidden_outputs = self.fu(dataset[i], self.weigths_ih, self.h_nodes, self.bias_ih)            
         
             outputs = self.fu(hidden_outputs, self.weigths_ho, self.o_nodes, self.bias_ho)
             
+            print('')
             print(outputs)
+
+            if (outputs[0] >= 0) and (outputs[0] < 0.45):
+                print('Iris-Setosa')
+                
+            elif (outputs[0] >= 0.45) and (outputs[0] < 0.75):
+                print('Iris-versicolor')
+                
+            else:
+                print('Iris-virginica')
+            
