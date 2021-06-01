@@ -25,7 +25,7 @@ class NeuralNetwork:
 
         # Learning Rate
         self.learning_rate = 0.2
-        self.a_variation = 0.3
+        self.a_variation = 0.6
 
     def fu(self, inputs, weights, outputs, bias):
         hidden_n = []
@@ -86,18 +86,20 @@ class NeuralNetwork:
         return vb_weights, weights
 
     def update_weights(self, inputs, hidden_o, delta_o, delta_h):
+        qtd_bias_ho = [1 for i in range(self.o_nodes)]
+        qtd_bias_ih = [1 for i in range(self.h_nodes)]
 
         # Weights Bias Hidden   
         self.vb_weights_ih, self.weigths_ih = self.updates(self.weigths_ih, self.vb_weights_ih, inputs, delta_h)
 
         # Weights Bias Output      
-        self.vb_bias_ho, self.bias_ho = self.update(self.bias_ho, self.vb_bias_ho, [1], delta_o)        
+        self.vb_bias_ho, self.bias_ho = self.update(self.bias_ho, self.vb_bias_ho, qtd_bias_ho, delta_o)        
 
         # Weights Output                        
         self.vb_weights_ho, self.weigths_ho = self.updates(self.weigths_ho, self.vb_weights_ho, hidden_o, delta_o)
         
         # Weights Bias Hidden
-        self.vb_bias_ih, self.bias_ih = self.update(self.bias_ih, self.vb_bias_ih, [1, 1], delta_h)
+        self.vb_bias_ih, self.bias_ih = self.update(self.bias_ih, self.vb_bias_ih, qtd_bias_ih, delta_h)
 
 
     def mse(self, outputs, answers):

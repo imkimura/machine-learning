@@ -46,7 +46,7 @@ if __name__ == '__main__':
 
     while (train):        
         result = nn.train(dataset, answers)
-        if (result <= 0.003):
+        if (result <= 0.001):
             train = False
         print(result)
         
