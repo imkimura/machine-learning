@@ -42,11 +42,11 @@ if __name__ == '__main__':
 
                 training.append(inputs)
 
-    nn = NeuralNetwork(4, 8, 1)
+    nn = NeuralNetwork(4, 4, 1)
 
     while (train):        
         result = nn.train(dataset, answers)
-        if (result <= 0.001):
+        if (result <= 0.003):
             train = False
         print(result)
         

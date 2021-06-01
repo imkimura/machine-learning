@@ -144,8 +144,8 @@ class NeuralNetwork:
                 print('Iris-Setosa')
                 
             elif (outputs[0] >= 0.45) and (outputs[0] < 0.8):
-                print('Iris-versicolor')
-                
-            elif (outputs[0] >= 0.8) and (outputs[0] <= 1):
                 print('Iris-virginica')
+                
+            elif (outputs[0] >= 0.8) and (outputs[0] <= 1):                
+                print('Iris-versicolor')
             
