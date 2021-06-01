@@ -45,8 +45,9 @@ if __name__ == '__main__':
     nn = NeuralNetwork(4, 8, 1)
 
     while (train):        
-        if (nn.train(dataset, answers) <= 0.014):
+        result = nn.train(dataset, answers)
+        if (result <= 0.003):
             train = False
-        print(nn.train(dataset, answers))
+        print(result)
         
     nn.predict(training)

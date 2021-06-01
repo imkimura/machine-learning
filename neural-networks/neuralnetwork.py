@@ -24,8 +24,8 @@ class NeuralNetwork:
         self.vb_weights_ho = [[0 for i in range(h_nodes)] for i in range(o_nodes)]
 
         # Learning Rate
-        self.learning_rate = 0.1
-        self.a_variation = 0.7
+        self.learning_rate = 0.2
+        self.a_variation = 0.3
 
     def fu(self, inputs, weights, outputs, bias):
         hidden_n = []
@@ -55,43 +55,50 @@ class NeuralNetwork:
             delta_h.append(d)
         return delta_h
 
-    def update_weights(self, inputs, hidden_o, delta_o, delta_h, second):
-
-        for i in range(self.h_nodes):
-            for j in range(self.i_nodes):
-                percent = self.a_variation * self.vb_weights_ih[i][j]
-                variant = self.learning_rate * (inputs[j] * delta_h[j])
-                if second: variant = variant * percent
-                new_weight = self.weigths_ih[i][j] + (variant)
-                
-                self.vb_weights_ih[i][j] = variant
-                self.weigths_ih[i][j] = new_weight
-
-                percent_ho = self.a_variation * self.vb_weights_ho[0][j]
-                variant_ho = self.learning_rate * (hidden_o[j] * delta_o[0])
-                if second: variant_ho = variant_ho * percent_ho
-                new_weight_ho = self.weigths_ho[0][j] + variant_ho
-
-                self.weigths_ho[0][j] = new_weight_ho
-                self.vb_weights_ho[0][j] = variant_ho
-            
-        percent_bo = self.a_variation * self.vb_bias_ho[0]
-        variant_bo = self.learning_rate * (1 * delta_o[0])
-        if second: variant_bo = variant_bo * percent_bo
-        new_weight_bo = self.bias_ho[0] + variant_bo
+    def updates(self, weights, vb_weights, inputs, delt):
         
-        self.bias_ho[0] = new_weight_bo
-        self.vb_bias_ho[0] = variant_bo
+        hidden = len(weights)
+        inputsL = len(inputs)
+
+        for i in range(hidden):
+            for j in range(inputsL):
+                percent = self.a_variation * vb_weights[i][j]
+                variant = (self.learning_rate * (inputs[j] * delt[i]) ) + percent
+                new_weight = weights[i][j] + variant
+                
+                vb_weights[i][j] = variant
+                weights[i][j] = new_weight
+
+        return vb_weights, weights
+    
+    def update(self, weights, vb_weights, inputs, delt):
+        
+        inputsL = len(inputs)
+        
+        for j in range(inputsL):
+            percent = self.a_variation * vb_weights[j]
+            variant = (self.learning_rate * (inputs[j] * delt[j]))  + percent
+            new_weight = weights[j] + variant
             
-        for i in range(self.i_nodes):
-            
-            percent_bi = self.a_variation * self.vb_bias_ih[i]
-            variant_bi = self.learning_rate * (1 * delta_o[0])
-            if second: variant_bi = variant_bi * percent_bi
-            new_weight_bi = self.bias_ih[i] + variant_bi
-            
-            self.bias_ih[i] = new_weight_bi
-            self.vb_bias_ih[i] = variant_bi
+            vb_weights[j] = variant
+            weights[j] = new_weight
+
+        return vb_weights, weights
+
+    def update_weights(self, inputs, hidden_o, delta_o, delta_h):
+
+        # Weights Bias Hidden   
+        self.vb_weights_ih, self.weigths_ih = self.updates(self.weigths_ih, self.vb_weights_ih, inputs, delta_h)
+
+        # Weights Bias Output      
+        self.vb_bias_ho, self.bias_ho = self.update(self.bias_ho, self.vb_bias_ho, [1], delta_o)        
+
+        # Weights Output                        
+        self.vb_weights_ho, self.weigths_ho = self.updates(self.weigths_ho, self.vb_weights_ho, hidden_o, delta_o)
+        
+        # Weights Bias Hidden
+        self.vb_bias_ih, self.bias_ih = self.update(self.bias_ih, self.vb_bias_ih, [1, 1], delta_h)
+
 
     def mse(self, outputs, answers):
         e = 0
@@ -104,23 +111,20 @@ class NeuralNetwork:
 
     def train(self, dataset, answers):
         all_outputs = []
-        second = False
         
-        for i, inputs in zip(range(len(dataset)), dataset):
+        for i in range(len(dataset)):
             # feedfoward         
-            hidden_outputs = self.fu(inputs, self.weigths_ih, self.h_nodes, self.bias_ih)
+            hidden_outputs = self.fu(dataset[i], self.weigths_ih, self.h_nodes, self.bias_ih)
         
             outputs = self.fu(hidden_outputs, self.weigths_ho, self.o_nodes, self.bias_ho)
 
             # backpropagation
             delta_o = self.delt_o(outputs, answers[i])
             
-            delta_h = self.delt_h(hidden_outputs, delta_o)
-            
-            if i != 0: second = True
+            delta_h = self.delt_h(hidden_outputs, delta_o)            
 
-            self.update_weights(inputs, hidden_outputs, delta_o, delta_h, second)
-            
+            self.update_weights(dataset[i], hidden_outputs, delta_o, delta_h)
+
             all_outputs.append(outputs[0])
 
         return self.mse(all_outputs, answers)
@@ -137,9 +141,9 @@ class NeuralNetwork:
             if (outputs[0] >= 0) and (outputs[0] < 0.45):
                 print('Iris-Setosa')
                 
-            elif (outputs[0] >= 0.45) and (outputs[0] < 0.75):
+            elif (outputs[0] >= 0.45) and (outputs[0] < 0.8):
                 print('Iris-versicolor')
                 
-            else:
+            elif (outputs[0] >= 0.8) and (outputs[0] <= 1):
                 print('Iris-virginica')
             
